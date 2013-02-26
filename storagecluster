@@ -1,0 +1,392 @@
+
+
+-- Functions
+-- function serlTable(table,name)
+  -- --local file = fs.open(name,"w")
+	-- --file.write(textutils.serialize(table))
+	-- --file.close()
+-- end
+
+-- function loadTable(name)
+	-- local file = fs.open(name,"r")
+	-- local data = file.readAll()
+	-- file.close()
+	-- return textutils.unserialize(data)
+-- end
+
+function makemsg(idfrom, idto, msgType, msg)
+	local final = ""
+	--print(msg)
+	final = "HORACE|"  .. idfrom .. "|" .. idto .. "|" .. msgType .. "|" .. msg
+	--print(final)
+	return final
+end
+
+function validateWeeblerMsg( msg )
+
+	print("Validating message... ")
+	--print ("Computer ".. id .. " has sent us a message")
+	--print ("The message is")
+	--print (message)
+	local m = 0
+	local ret = false
+	local cmd = nill
+	local cmdType = nill
+	for i,v in pairs(explode("|", message)) do
+		if ( m == 0 ) then
+			if( v == "HORACE" ) then
+				print("Weebler message: TRUE")
+				else
+					return ret
+			end
+		end
+		if ( m == 1 ) then
+			print( "Msg From: " .. v )
+		end
+		if ( m == 2 ) then
+			
+			if ( v ~= "0" and v ~= os.getComputerID() ) then
+				print( "Msg To: " .. v .. " which is not us, validation falied.")
+				return false
+				else
+					ret = true
+					
+			end
+		end
+		if ( m == 3 ) then
+			print( "CmdType: " .. v )
+			cmdTyle = v
+			--cmd = v
+			--return ret, cmd
+		end
+		if ( m == 4 ) then
+			print( "Command: " .. v )
+			cmd = v
+			return ret, cmd
+		end
+		--print("[" .. i .. "] = " .. v)
+		m = m+1
+	end
+	return ret
+end
+
+function explode(div,str)
+    if (div=='') then return false end
+    local pos,arr = 0,{}
+    for st,sp in function() return string.find(str,div,pos,true) end do
+        table.insert(arr,string.sub(str,pos,st-1))
+        pos = sp + 1
+    end
+    table.insert(arr,string.sub(str,pos))
+    return arr
+end
+
+function processRestartCmd(resp)
+	os.reboot()
+end
+
+function processQueryCmd(resp)
+
+	local b, s = locateSorter()
+	
+	if ( b == true ) then
+		print( "Querying storage" )
+		local st = queryStorage( s )
+		
+		--print(st) 
+		local msg = makemsg( os.getComputerID(), resp, 1, st )
+		rednet.broadcast(msg)
+		--print(s)
+	end
+
+	-- local b, s = getStacks("back", 3)
+	-- local resp = ""
+	-- if ( b == true ) then
+		-- for i,v in pairs(s) do
+			-- --print( "ItemID = " .. v.id .. ", v.uuid = " .. v.uuid .. ", Amount = " .. v.amount )
+			-- resp = resp .. v.id .. "|" .. v.uuid .. "|" .. v.amount .. "|"
+		-- end
+	-- end
+	-- local b, s = getStacks("back", 2)
+	-- if ( b == true ) then
+		-- for i,v in pairs(s) do
+			-- --print( "ItemID = " .. v.id .. ", v.uuid = " .. v.uuid .. ", Amount = " .. v.amount )
+			-- resp = resp .. v.id .. "|" .. v.uuid .. "|" .. v.amount .. "|"
+		-- end
+	-- end
+	-- local b, s = getStacks("back", 5)
+	-- if ( b == true ) then
+		-- for i,v in pairs(s) do
+			-- resp = resp .. v.id .. "|" .. v.uuid .. "|" .. v.amount .. "|"
+			-- --print( "ItemID = " .. v.id .. ", v.uuid = " .. v.uuid .. ", Amount = " .. v.amount )
+		-- end
+	-- end
+	
+	--print(resp)
+	--getStacks("top", 1)
+end
+
+function processCmd(cmd, resp)
+	for i,v in pairs(explode("|", cmd)) do
+		if( v:lower() == "query" ) then
+			print( "Query received" )
+			processQueryCmd(resp)
+		end
+		if( v:lower() == "restart" ) then
+			print("Restart received")
+			sleep(5)
+			processRestartCmd(resp);
+		end
+	end
+end
+
+function validateWeeblerMsg( msg )
+	 print("Validating message... ")
+	 local m = 0
+	 local ret = false
+	 local cmd = nill
+	 local cmdType = nill
+	 for i,v in pairs(explode("|", message)) do
+		 if ( m == 0 ) then
+			 if( v == "HORACE" ) then
+				 print("Weebler message: TRUE")
+				 else
+					 return ret
+			 end
+		 end
+		 if ( m == 1 ) then
+			 print( "Msg From: " .. v )
+		 end
+		 if ( m == 2 ) then
+			
+			 if ( v ~= "0" and v ~= os.getComputerID() ) then
+				 print( "Msg To: " .. v .. " which is not us, validation falied.")
+				 return false
+				 else
+					 ret = true
+					
+			 end
+		 end
+		 if ( m == 3 ) then
+			 print( "CmdType: " .. v )
+			 cmdTyle = v
+			 --cmd = v
+			 --return ret, cmd
+		 end
+		 if ( m == 4 ) then
+			 print( "Command: " .. v )
+			 cmd = v
+			 return ret, cmd
+		 end
+		 --print("[" .. i .. "] = " .. v)
+		 m = m+1
+	 end
+	 return ret
+ end
+
+function table_print (tt, indent, done)
+  done = done or {}
+  indent = indent or 0
+  if type(tt) == "table" then
+    local sb = {}
+    for key, value in pairs (tt) do
+      table.insert(sb, string.rep (" ", indent)) -- indent it
+      if type (value) == "table" and not done [value] then
+        done [value] = true
+        table.insert(sb, "{\n");
+        table.insert(sb, table_print (value, indent + 2, done))
+        table.insert(sb, string.rep (" ", indent)) -- indent it
+        table.insert(sb, "}\n");
+      elseif "number" == type(key) then
+        table.insert(sb, string.format("\"%s\"\n", tostring(value)))
+      else
+        table.insert(sb, string.format(
+            "%s = \"%s\"\n", tostring (key), tostring(value)))
+       end
+    end
+    return table.concat(sb)
+  else
+    return tt .. "\n"
+  end
+end
+
+function to_string( tbl )
+    if  "nil"       == type( tbl ) then
+        return tostring(nil)
+    elseif  "table" == type( tbl ) then
+        return table_print(tbl)
+    elseif  "string" == type( tbl ) then
+        return tbl
+    else
+        return tostring(tbl)
+    end
+end
+
+
+ -- Gets the Unique ID based on the ID and Meta
+function getID(id, meta)
+  if meta == nil then
+    meta = 27268
+  else
+    meta = bit.bxor(meta, 0x6E6C)
+  end
+  local uuid = bit.bxor(id, 0x4F89) * 0x8000 + bit.bxor(meta, 0x3A69)
+  return uuid
+end
+
+-- Get a stack table from a single uuid and amount
+-- This does all the math to reverse the unique ID algorithm that RG wrote.
+-- Valid for version 2.3
+function getStack(uuid, c)
+        -- Reverse RG's fancy math
+        local subt = bit.band(uuid, 0x7fff)
+        local dexorm = bit.bxor(subt, 0x3a69)
+        local metadata = nil
+        if dexorm ~= 28262 then -- item takes dmg
+                metadata = bit.bxor(dexorm, 0x6e6c)
+        end
+        local id = bit.bxor((uuid-subt)/0x8000, 0x4f89)
+        -- put it in to a nice table
+        local stack = {}
+        stack.amount = c
+        stack.id = id
+        stack.meta = metadata
+        stack.uuid = uuid
+
+        return stack
+end
+ 
+-- Get stacks from an Interactive Sorter
+-- direction   : the direction of the Interactive Sorter Peripheral
+-- invDirection: the direction of the inventory from the peripheral
+-- valid options for invDirection are 0,1,2,3,4,5 ( original values),
+-- north, south, east, west, up, down, and the +/-X,Y,Z strings.
+-- (see directions variable)
+function getStacks(direction, invDirection)
+		--print("getStacks, direction = " .. direction .. "invDirection = " .. invDirection )
+        if not peripheral.isPresent(direction) then
+				--print("No Peripheral")
+                return false, "No Peripheral"
+        end
+		--print ("Type " .. peripheral.getType(direction))
+        if peripheral.getType(direction) ~= "interactiveSorter" then
+                return false, "Not a sorter"
+        end
+        local stacks = {}
+       
+        for uuid,count in pairs(peripheral.call(direction, "list", invDirection)) do-- directions[invDirection])) do
+                table.insert(stacks, getStack(uuid, count))
+        end
+        return true, stacks    
+end
+
+function queryStorage(direction)
+
+		local found
+		local dirs = { 0, 1, 2, 3, 4, 5 }
+		local nestedStacks = {}
+		for i, dir in ipairs(dirs) do
+			local stacks = {}
+			--print( "Probing side " .. dir .. ", direction = " .. direction )
+			local t = nill
+			local b = peripheral.call(direction, "list", dir)
+			--if pcall( peripheral.call(direction, "list", dir) ) then
+			--	print( "Found something, " .. dir )
+			--	t = peripheral.call(direction, "list", dir)
+			--	else
+			--		print("Error listing on side " .. dir )
+			--end
+			if ( b ~= nill ) then
+				stacks[0] = dir
+				--print( dir )
+				stacks[1] = {}
+				for uuid,count in pairs(b) do-- directions[invDirection])) do
+				table.insert(stacks[1], getStack(uuid, count))
+				--print(to_string{stacks})
+				--print(to_string{stacks})
+				table.insert(nestedStacks, stacks)
+				end
+			end
+
+		end
+		return textutils.serialize(nestedStacks)--to_string(nestedStacks)
+		--print(to_string{nestedStacks})
+
+end
+
+function locateSorter()
+
+		local dirs = { "top", "bottom", "back", "front", "left", "right" }
+		--local dirs = {0, 1, 2, 3, 4, 5}
+		local found = {}
+		for i, dir in ipairs(dirs) do
+		  --print (name)
+		  	if peripheral.isPresent(dir) and peripheral.getType(dir) == "interactiveSorter" then
+				print("Found a sorter peripheral. Location = " .. dir)
+				--queryStorage(dir)
+				return true, dir
+			end
+		end
+		return false, "no sorter found"
+end
+
+
+
+
+local tAPIsLoading = {}
+function os.loadAPI( _sPath )
+  local sName = fs.getName( _sPath )
+  if tAPIsLoading[sName] == true then
+        printError( "API "..sName.." is already being loaded" )
+        return false
+  end
+  tAPIsLoading[sName] = true
+
+  local tEnv = {}
+  setmetatable( tEnv, { __index = _G } )
+  local fnAPI, err = loadfile( _sPath )
+
+  if fnAPI then
+        setfenv( fnAPI, tEnv )
+        local tAPI = fnAPI()
+        if not tAPI then
+          tAPI = {}
+          for k,v in pairs( tEnv ) do
+                tAPI[k] = v
+          end
+        end
+        _G[sName] = tAPI
+        tAPIsLoading[sName] = nil
+        return true
+  else
+        printError( err )
+        tAPIsLoading[sName] = nil
+        return false
+  end
+end
+
+rednet.open("right")
+-- print(os.loadAPI("weeblerNet"))
+-- print(os.loadAPI("weeblerPeripheral"))
+-- print(os.loadAPI("weeblerStorage"))
+
+while true do
+
+	id, message  = rednet.receive(10)
+	if id ~= nill then
+		local b, c
+		b, c = validateWeeblerMsg(message)
+		if  (b == true ) then
+			print("Received a valid message, processing command: " .. c )
+			processCmd(c, id)
+			
+		end
+	end
+	sleep(1)
+end
+
+
+
+
+
+
