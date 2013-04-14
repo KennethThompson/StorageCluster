@@ -445,7 +445,16 @@ end
 
 
 
+doSorter = function()
+		local b, sort = locateSorter()
+		p = peripheral.wrap(sort)
+		local count = 0
+	while true do
+		local sEvent, param, param2 = os.pullEvent("isort_item")
+		p.sort(0)
+	end
 
+end
 
 rednet.open("right")
 
@@ -470,8 +479,7 @@ mainLoop = function()
 end
 
 print("Starting...")
-parallel.waitForAll (mainLoop)
-
+parallel.waitForAll (mainLoop, doSorter)
 
 
 
