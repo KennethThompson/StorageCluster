@@ -111,17 +111,23 @@ function processGetCmd(idFrom, ct, cmd)
 					tb.msg = rs
 					tb.result = true
 					tb.amount = am
-					
+					tb.uuid = value.uuid
 					local msg = makemsg( os.getComputerID(), idFrom, "getResponse", textutils.serialize(tb) )
 					sendCmd(idFrom, msg)
+					msg = makemsg( os.getComputerID(), 0, "getResponse", textutils.serialize(tb) )
+					sendCmd(0, msg)
+					print(msg)
 					return true
 					else
 						local tb = {}
 						tb.msg = rs
 						tb.result = false
 						tb.amount = 0
+						tb.uuid = value.uuid
 						local msg = makemsg( os.getComputerID(), idFrom, "getResponse", textutils.serialize(tb) )
 						sendCmd(idFrom, msg)
+						msg = makemsg( os.getComputerID(), 0, "getResponse", textutils.serialize(tb) )
+						sendCmd(0, msg)
 						return false
 				end
 			end -- if same uuid
@@ -385,15 +391,15 @@ function pushUIDOut( uid, amt, s )
 							print ( "Extracing " .. res .. " loop " .. curloop )
 							--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
 							else
-							p.extract(dir,uid,0,leftover)
+							local res = p.extract(dir,uid,0,leftover)
 							if( res == 1 ) then total_extracted = total_extracted + leftover end
 						end
 						
 					end
 					if( total_extracted == 0 ) then
-						return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID=" .. uid, 0
+						return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
 					end
-					return true, "Success.. Extracting " .. amt  .. ", UUID=" .. uid, total_extracted
+					return true, "Success.. Extracted " .. amt  .. " of UUID " .. uid, total_extracted
 				end
 				
 			end
