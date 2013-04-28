@@ -380,8 +380,8 @@ function pushUIDOut( uid, amt, s )
 						for curloop = 1, loops do
 							--local loops = amt / 64
 							if (curloop ~= loops) then
-								p.extract(dir,uid,0,64)
-						--		print ( "Extracing " .. 64 .. " loop " .. curloop )
+								local res = p.extract(dir,uid,0,64)
+								print ( "Extracing " .. res .. " loop " .. curloop )
 								--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
 								else
 						--		print ( "Extracing " .. leftover .. " loop " .. curloop )
