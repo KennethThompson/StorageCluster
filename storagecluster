@@ -463,7 +463,7 @@ rednet.open("right")
 mainLoop = function()
 	print ("Main loop started")
 	while true do
-		id, message  = rednet.receive(10)
+		id, message  = rednet.receive(1)
 		if id ~= nill then
 			local b, c
 			b, ct, c = validateWeeblerMsg(message)
@@ -476,7 +476,7 @@ mainLoop = function()
 				--print("Received an invalid message")
 			end
 		end
-		sleep(1)
+		--sleep(1)
 	end
 end
 
