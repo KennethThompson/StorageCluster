@@ -105,20 +105,22 @@ function processGetCmd(idFrom, ct, cmd)
 	for item = 1, #tmp do
 		for key, value in pairs (tmp[item]) do
 			if ( cmdt.uuid == value.uuid ) then
-				local rb, rs = pushUIDOut(value.uuid, cmdt.amount, s)
+				local rb, rs, am = pushUIDOut(value.uuid, cmdt.amount, s)
 				if ( rb == true ) then
 					local tb = {}
 					tb.msg = rs
 					tb.result = true
+					tb.amount = am
 					
-					local msg = makemsg( os.getComputerID(), idFrom, "response", to_string(tb) )
+					local msg = makemsg( os.getComputerID(), idFrom, "getResponse", textutils.serialize(tb) )
 					sendCmd(idFrom, msg)
 					return true
 					else
 						local tb = {}
 						tb.msg = rs
 						tb.result = false
-						local msg = makemsg( os.getComputerID(), idFrom, "response", to_string(tb) )
+						tb.amount = 0
+						local msg = makemsg( os.getComputerID(), idFrom, "getResponse", textutils.serialize(tb) )
 						sendCmd(idFrom, msg)
 						return false
 				end
@@ -354,7 +356,7 @@ function pushUIDOut( uid, amt, s )
 		for i, dir in ipairs(dirs) do
 			local stacks = {}
 			local t = nill
-			
+			local total_extracted = 0
 			local b = peripheral.call(sort, "list", dir)
 			p = peripheral.wrap(sort)
 			if ( b ~= nill ) then
@@ -368,33 +370,30 @@ function pushUIDOut( uid, amt, s )
 					--print( "UID " .. uuid .. " Count = " .. count )
 				end
 				if ( uid == curUUID ) then
-					--if ( totalItemCount >= amt ) then
-						local loops = 1
-						local leftover = amt
-						if ( amt > 64 ) then
-							loops = loops + math.floor(amt / 64)
-							leftover = amt % 64
-							--print ("LOOPS "..loops)
+					local loops = 1
+					local leftover = amt
+					if ( amt > 64 ) then
+						loops = loops + math.floor(amt / 64)
+						leftover = amt % 64
+					end
+					
+					for curloop = 1, loops do
+						--local loops = amt / 64
+						if (curloop ~= loops) then
+							local res = p.extract(dir,uid,0,64)
+							if( res == 1 ) then total_extracted = total_extracted + 64 end
+							print ( "Extracing " .. res .. " loop " .. curloop )
+							--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
+							else
+							p.extract(dir,uid,0,leftover)
+							if( res == 1 ) then total_extracted = total_extracted + leftover end
 						end
 						
-						for curloop = 1, loops do
-							--local loops = amt / 64
-							if (curloop ~= loops) then
-								local res = p.extract(dir,uid,0,64)
-								print ( "Extracing " .. res .. " loop " .. curloop )
-								--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
-								else
-						--		print ( "Extracing " .. leftover .. " loop " .. curloop )
-									p.extract(dir,uid,0,leftover)
-									--
-							end
-							
-						end
-						return true, "Success.. Extracting " .. amt  .. ", UUID=" .. uid
-
-					--end
-				--	else
-				--		return false, "Error. Unable to Extract " .. amt .. " of UUID " .. uid .. " failed because there is only " .. totalItemCount .. " remaining."
+					end
+					if( total_extracted == 0 ) then
+						return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID=" .. uid, 0
+					end
+					return true, "Success.. Extracting " .. amt  .. ", UUID=" .. uid, total_extracted
 				end
 				
 			end
@@ -468,12 +467,8 @@ mainLoop = function()
 			local b, c
 			b, ct, c = validateWeeblerMsg(message)
 			if  (b == true ) then
-				--print("Received a valid message, processing command: " .. message )
-				--print(id)
-			--	transferContents( 2, 1)
 				processCmd( id, ct, c)
 				else
-				--print("Received an invalid message")
 			end
 		end
 		--sleep(1)
