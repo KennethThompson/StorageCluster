@@ -83,6 +83,7 @@ function processGetCmd(idFrom, ct, cmd)
 	--print(cmd)
 	local b, s = locateSorter()
 	local cmdt = textutils.unserialize(cmd)
+	print(to_string(cmdt))
 	if ( b == false ) then
 	 	local tb = {}
 		tb.msg = "Error, no sorter found"
