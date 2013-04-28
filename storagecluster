@@ -80,7 +80,7 @@ function processDumpCmd(idFrom, ct, cmd)
 end
 
 function processGetCmd(idFrom, ct, cmd)
-	print(cmd)
+	--print(cmd)
 	local b, s = locateSorter()
 	local cmdt = textutils.unserialize(cmd)
 	if ( b == false ) then
