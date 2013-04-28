@@ -26,7 +26,7 @@ end
 function sendCmd( toid, cmd )
 	--print( "Sending [ " .. cmd .. "], to ID " .. toid )
 	if (toid == 0) then
-		rednet.broadcast(msg)
+		rednet.broadcast(cmd)
 		else
 			rednet.send( toid, cmd )
 	end
