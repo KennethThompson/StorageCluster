@@ -372,7 +372,7 @@ function pushUIDOut( uid, amt, s )
 						local loops = 1
 						local leftover = amt
 						if ( amt > 64 ) then
-							loops = loops + amt / 64
+							loops = loops + math.floor(amt / 64)
 							leftover = amt % 64
 							--print ("LOOPS "..loops)
 						end
