@@ -401,7 +401,11 @@ function pushUIDOut( uid, amt, s )
 					totalItemCount = totalItemCount + count
 					--print( "UID " .. uuid .. " Count = " .. count )
 				end
+				if( totalItemCount == 0 ) then
+					return false, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
+				end
 				if ( uid == curUUID ) then
+					
 					local loops = 1
 					local leftover = amt
 					if ( amt > 64 ) then
@@ -413,18 +417,33 @@ function pushUIDOut( uid, amt, s )
 						--local loops = amt / 64
 						if (curloop ~= loops) then
 							local res = p.extract(dir,uid,0,64)
-							if( res == 1 ) then total_extracted = total_extracted + 64 end
+							if ( res ~= nil ) then
+								total_extracted = total_extracted + res 
+							end
 							print ( "Extracing " .. res .. " loop " .. curloop )
 							--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
 							else
 							local res = p.extract(dir,uid,0,leftover)
-							if( res == 1 ) then total_extracted = total_extracted + leftover end
+							if ( res ~= nil ) then
+								total_extracted = total_extracted + res 
+							end
+							
+							--print(res .. " " .. leftover)
+							--if( tonumber(res) == 1 ) then 
+							--	
+							--	print(total_extracted)
+							--end
 						end
 						
 					end
-					if( total_extracted == 0 ) then
-						return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
-					end
+					--if( total_extracted == 0 ) then
+					--	return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
+					--end
+				--	if( totalItemCount <= amt ) then
+					 -- hack to correct counts. bad to do this, but meh, its late.
+						--total_extracted = amt
+				--	end
+					
 					return true, "Success.. Extracted " .. amt  .. " of UUID " .. uid, total_extracted
 				end
 				
@@ -509,7 +528,6 @@ end
 
 print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
-
 
 
 
