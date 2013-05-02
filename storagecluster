@@ -401,11 +401,11 @@ function pushUIDOut( uid, amt, s )
 					totalItemCount = totalItemCount + count
 					--print( "UID " .. uuid .. " Count = " .. count )
 				end
-				if( totalItemCount == 0 ) then
-					return false, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
-				end
+	
 				if ( uid == curUUID ) then
-					
+					if( totalItemCount == 0 ) then
+						return false, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
+					end
 					local loops = 1
 					local leftover = amt
 					if ( amt > 64 ) then
