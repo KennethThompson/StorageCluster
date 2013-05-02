@@ -504,7 +504,8 @@ end
 rednet.open("right")
 
 mainLoop = function()
-	print ("Main loop started")
+	print ("Main loop started, letting everyone know we're here!")
+	processQueryCmd(0)
 	while true do
 		id, message  = rednet.receive(1)
 		if id ~= nill then
