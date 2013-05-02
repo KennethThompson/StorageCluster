@@ -501,7 +501,7 @@ doSorter = function()
 
 end
 
-rednet.open("right")
+--rednet.open("right")
 
 mainLoop = function()
 	print ("Main loop started, letting everyone know we're here!")
@@ -519,6 +519,21 @@ mainLoop = function()
 		--sleep(1)
 	end
 end
+
+function initModem()
+		local dirs = { "top", "bottom", "back", "front", "left", "right" }
+		for i, dir in ipairs(dirs) do
+		  	if peripheral.isPresent(dir) and peripheral.getType(dir) == "modem" then
+				rednet.open(dir)
+				print("Found a modem on the " .. dir .. " side.")
+				return true
+			end
+		end
+		print("A modem must be attached for the storage interface application to function correctly.")
+		return false
+end
+local modemInit = initModem()
+if( modemInit ~= true ) then return end
 
 print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
