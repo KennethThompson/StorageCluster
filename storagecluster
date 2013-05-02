@@ -436,13 +436,9 @@ function pushUIDOut( uid, amt, s )
 						end
 						
 					end
-					--if( total_extracted == 0 ) then
-					--	return true, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
-					--end
-				--	if( totalItemCount <= amt ) then
-					 -- hack to correct counts. bad to do this, but meh, its late.
-						--total_extracted = amt
-				--	end
+					if( total_extracted == 0 ) then
+						return false, "Zero items extracted when attempting to extract " .. amt  .. " of UUID " .. uid, 0
+					end
 					
 					return true, "Success.. Extracted " .. amt  .. " of UUID " .. uid, total_extracted
 				end
