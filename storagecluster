@@ -539,4 +539,3 @@ print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
 
 
-
