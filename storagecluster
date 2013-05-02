@@ -68,7 +68,7 @@ function processQueryCmd(idFrom)
 		local st = queryStorage( s )
 		local sts = textutils.serialize(st)
  
-		local msg = makemsg( os.getComputerID(), idFrom, "query", sts )
+		local msg = makemsg( os.getComputerID(), idFrom, "queryResponse", sts )
 
 		sendCmd(tonumber(idFrom), msg)
 
@@ -537,7 +537,6 @@ if( modemInit ~= true ) then return end
 
 print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
-
 
 
 
