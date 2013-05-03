@@ -68,7 +68,7 @@ function processQueryCmd(idFrom)
 		local st = queryStorage( s )
 		local sts = textutils.serialize(st)
  
-		local msg = makemsg( os.getComputerID(), idFrom, "queryResponse", sts )
+		local msg = makemsg( os.getComputerID(), idFrom, "queryStorageClustersResponse", sts )
 
 		sendCmd(tonumber(idFrom), msg)
 
@@ -171,7 +171,7 @@ end
 
 function processCmd(idFrom, ct, cmd)
 	for i,v in pairs(explode("|", ct)) do
-		if( v:lower() == "query" ) then
+		if( v:lower() == "querystorageclusters" ) then
 			print( "Query received" )
 			processQueryCmd(idFrom)
 		end
@@ -537,5 +537,6 @@ if( modemInit ~= true ) then return end
 
 print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
+
 
 
