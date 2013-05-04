@@ -60,18 +60,20 @@ function sendCmd( toid, cmd )
 end
 
 function processQueryCmd(idFrom)
-
 	local b, s = locateSorter()
-	
 	if ( b == true ) then
 
-		local st = queryStorage( s )
+		local st = {}
+		st.computerLabel = os.getComputerLabel()
+		st.computerID = os.getComputerID()
+		st.resources = {}
+		st.resources = queryStorage( s )
+		
 		local sts = textutils.serialize(st)
- 
+		
 		local msg = makemsg( os.getComputerID(), idFrom, "queryStorageClustersResponse", sts )
 
 		sendCmd(tonumber(idFrom), msg)
-
 	end
 
 end
@@ -82,25 +84,26 @@ function processDumpCmd(idFrom, ct, cmd)
 	 	local tb = {}
 		tb.msg = "Error, no sorter found"
 		tb.result = false
-		local msg = makemsg( os.getComputerID(), idFrom, "response", to_string(tb) )
+		local msg = makemsg( os.getComputerID(), idFrom, "dumpResponse", textutils.serialize(tb) )
 		sendCmd(idFrom, msg)	
 		return false
 	end	
 		local tmp = queryStorage( s )
-	if( #tmp == 0 or type(tmp) ~= "table" ) then
+	if( tmp == nil or type(tmp) ~= "table" ) then
 		local tb = {}
 		tb.msg = "Error, no sorter found"
 		tb.result = false
-		local msg = makemsg( os.getComputerID(), idFrom, "response", to_string(tb) )
+		local msg = makemsg( os.getComputerID(), idFrom, "dumpResponse", textutils.serialize(tb) )
 		sendCmd(idFrom, msg)	
 		return false
 	end
-
 	dump()
 	local tb = {}
 	tb.msg = "dumped contents"
-	tb.result = false
-	local msg = makemsg( os.getComputerID(), idFrom, "response", to_string(tb) )
+	tb.result = true
+	local msg = makemsg( os.getComputerID(), 0, "dumpResponse", textutils.serialize(tb)  )
+	sendCmd(0, msg)	
+	local msg = makemsg( os.getComputerID(), idFrom, "dumpResponse", textutils.serialize(tb)  )
 	sendCmd(idFrom, msg)	
 	return false
 end
@@ -395,10 +398,11 @@ function pushUIDOut( uid, amt, s )
 				--print(to_string(peripheral.getMethods(sort)))
 				local totalItemCount = 0
 				local curUUID = nil
-				
+
 				for uuid,count in pairs(b) do
 					curUUID = uuid
 					totalItemCount = totalItemCount + count
+				
 					--print( "UID " .. uuid .. " Count = " .. count )
 				end
 	
@@ -410,26 +414,31 @@ function pushUIDOut( uid, amt, s )
 						leftover = amt % 64
 					end
 					
+					
+					
 					for curloop = 1, loops do
 						--local loops = amt / 64
 						if (curloop ~= loops) then
 							local res = p.extract(dir,uid,0,64)
-							if ( res ~= nil ) then
+							if ( res ~= nil and res == 64) then
 								total_extracted = total_extracted + res 
+								else
+									total_extracted = 0
+									break
 							end
 							print ( "Extracing " .. res .. " loop " .. curloop )
 							--return true, "Success. Extracting " .. 64 .. " of " .. totalItemCount .. ", UUID=" .. uid
 							else
 							local res = p.extract(dir,uid,0,leftover)
-							if ( res ~= nil ) then
+							if ( res ~= nil and res == leftover ) then
 								total_extracted = total_extracted + res 
+								else
+									total_extracted = 0
+									break
 							end
 							
-							--print(res .. " " .. leftover)
-							--if( tonumber(res) == 1 ) then 
-							--	
-							--	print(total_extracted)
-							--end
+							
+		
 						end
 						
 					end
@@ -506,7 +515,12 @@ end
 mainLoop = function()
 	print ("Main loop started, letting everyone know we're here!")
 	processQueryCmd(0)
+	local heartbeat = os.clock()
 	while true do
+		if( os.clock() - heartbeat > 20 ) then
+			heartbeat = os.clock()
+			processQueryCmd(0)
+		end
 		id, message  = rednet.receive(1)
 		if id ~= nill then
 			local b, c
@@ -534,7 +548,9 @@ function initModem()
 end
 local modemInit = initModem()
 if( modemInit ~= true ) then return end
-
+if ( os.getComputerLabel() == nil or os.getComputerLabel == "" ) then
+	os.setComputerLabel(tostring(os.getComputerID()))
+end
 print("Starting...")
 parallel.waitForAll (mainLoop, doSorter)
 
