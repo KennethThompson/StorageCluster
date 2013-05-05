@@ -173,6 +173,7 @@ end
 
 
 function processCmd(idFrom, ct, cmd)
+
 	for i,v in pairs(explode("|", ct)) do
 		if( v:lower() == "querystorageclusters" ) then
 			print( "Query received" )
@@ -523,10 +524,13 @@ mainLoop = function()
 		end
 		id, message  = rednet.receive(1)
 		if id ~= nill then
+			
 			local b, c
 			b, ct, c = validateWeeblerMsg(message)
 			if  (b == true ) then
+				redstone.setOutput("top", false) -- blinky
 				processCmd( id, ct, c)
+				redstone.setOutput("top", true) -- blinky
 				else
 			end
 		end
@@ -552,6 +556,7 @@ if ( os.getComputerLabel() == nil or os.getComputerLabel == "" ) then
 	os.setComputerLabel(tostring(os.getComputerID()))
 end
 print("Starting...")
+redstone.setOutput("top", true)
 parallel.waitForAll (mainLoop, doSorter)
 
 
