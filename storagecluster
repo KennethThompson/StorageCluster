@@ -68,9 +68,10 @@ function processQueryCmd(idFrom)
 		st.computerID = os.getComputerID()
 		st.resources = {}
 		st.resources = queryStorage( s )
-		
+	--	print("serializing..")
+		--print(to_string(st))
 		local sts = textutils.serialize(st)
-		
+	--	print("serializing done")
 		local msg = makemsg( os.getComputerID(), idFrom, "queryStorageClustersResponse", sts )
 
 		sendCmd(tonumber(idFrom), msg)
@@ -133,6 +134,7 @@ function processGetCmd(idFrom, ct, cmd)
 
 	for item = 1, #tmp do
 		for key, value in pairs (tmp[item]) do
+			print(value.uuid)
 			if ( cmdt.uuid == value.uuid ) then
 				local rb, rs, am = pushUIDOut(value.uuid, cmdt.amount, s)
 				if ( rb == true ) then
@@ -389,6 +391,7 @@ function pushUIDOut( uid, amt, s )
 		local dirs = { 0, 1, 2, 3, 4, 5 }
 		local b, sort = locateSorter()
 		local nestedStacks = {}
+		--print("Pushing " .. uid)
 		for i, dir in ipairs(dirs) do
 			local stacks = {}
 			local t = nill
@@ -399,15 +402,20 @@ function pushUIDOut( uid, amt, s )
 				--print(to_string(peripheral.getMethods(sort)))
 				local totalItemCount = 0
 				local curUUID = nil
-
+				local found = false
 				for uuid,count in pairs(b) do
-					curUUID = uuid
-					totalItemCount = totalItemCount + count
+					if( uid == uuid ) then
+						totalItemCount = totalItemCount + count
+						found = true
+					end
+					--curUUID = uuid
+					
 				
-					--print( "UID " .. uuid .. " Count = " .. count )
+					--print( "curUUID " .. curUUID .. " Count = " .. count )
 				end
-	
-				if ( uid == curUUID ) then
+				--print(curUUID .. " " .. uid)
+				if ( found == true ) then
+					print("FOUND MATCH")
 					local loops = 1
 					local leftover = amt
 					if ( amt > 64 ) then
@@ -470,10 +478,13 @@ function queryStorage(direction)
 				for uuid,count in pairs(b) do
 
 				table.insert(stacks, getStack(uuid, count, invDirection))
+				--print(to_string(stacks))
+				--sleep(5)
 				--print(to_string{stacks})
 				--print(to_string{stacks})
-				table.insert(nestedStacks, stacks)
+				
 				end
+				table.insert(nestedStacks, stacks)
 			end
 
 		end
