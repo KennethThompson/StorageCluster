@@ -26,7 +26,7 @@ don't blame me if your server blows up.
 -- Config
 screenw,screenh = term.getSize()
 -- Config
-local program = "Storage Interface"
+local program = "Storage Cluster"
 local version = "v1.1"
 local author = "Horace"
 local systemFrequency = "Default"
@@ -80,7 +80,7 @@ local itemTable = {}
 
  function makemsg(idfrom, idto, msgType, msg)
 	local final = ""
-	final = "HORACEV1A|" .. systemFrequency .. "::" .. systemSubfrequency .. "|" .. idfrom .. "|" .. idto .. "|" .. msgType .."|" .. msg
+	final = "HORACEV1A|" .. systemConfig[0].systemFrequency .. "::" .. systemConfig[0].systemSubfrequency .. "|" .. idfrom .. "|" .. idto .. "|" .. msgType .."|" .. msg
 	return final
 end
 
@@ -265,7 +265,7 @@ function validateWeeblerMsg( msg )
 			 end
 		 end
 		 if ( m == 1 ) then -- this is our frequency/subfrequency area
-			local curFreq = systemFrequency .. "::" .. systemSubfrequency
+			local curFreq = systemConfig[0].systemFrequency .. "::" .. systemConfig[0].systemSubfrequency
 			if( v:lower() == curFreq:lower() ) then
 				else
 					return ret -- fail
