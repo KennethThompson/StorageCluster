@@ -600,10 +600,12 @@ mainLoop = function()
 	
 	processQueryCmd(0)
 	local heartbeat = os.clock()
+	local nextbeat = math.random(60, 120)
 	while true do
-		if( os.clock() - heartbeat > 20 ) then
+		if( os.clock() - heartbeat > nextbeat ) then
 			heartbeat = os.clock()
-		--	processQueryCmd(0)
+			nextbeat = math.random(60, 120)
+			processQueryCmd(0)
 		end
 		id, message  = rednet.receive(1)
 		if id ~= nill then
