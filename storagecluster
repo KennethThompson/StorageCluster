@@ -603,7 +603,7 @@ mainLoop = function()
 	while true do
 		if( os.clock() - heartbeat > 20 ) then
 			heartbeat = os.clock()
-			processQueryCmd(0)
+		--	processQueryCmd(0)
 		end
 		id, message  = rednet.receive(1)
 		if id ~= nill then
